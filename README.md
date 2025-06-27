@@ -124,8 +124,7 @@ docker run -p 8000:8000 \
 
 ## Credits
 - Built with [FastAPI](https://fastapi.tiangolo.com/), [Google Vertex AI](https://cloud.google.com/vertex-ai), and [Docker](https://www.docker.com/).
-
+- Supported by Google For Developers
+- Google Cloud credits are provided for this project
+- #VertexAISprint
 ---
-
-## License
-MIT 
