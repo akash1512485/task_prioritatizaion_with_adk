@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Prioritization Agent</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background: #f7f7fa; }
+        h1 { color: #333; }
+        textarea, input, button { width: 100%; margin-top: 0.5em; margin-bottom: 1em; padding: 0.5em; font-size: 1em; }
+        table { border-collapse: collapse; width: 100%; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 0.75em; text-align: left; }
+        th { background: #f0f0f0; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .result-section { margin-top: 2em; }
+    </style>
+</head>
+<body>
+    <h1>Task Prioritization Agent</h1>
+    <form id="taskForm">
+        <label for="tasks">Enter your tasks (one per line):</label>
+        <textarea id="tasks" rows="7" required placeholder="e.g. Finish the Q2 sales report by tomorrow\nBook a flight for the conference in Austin next month\n..."></textarea>
+        <label for="context">Optional context (e.g. company OKRs):</label>
+        <textarea id="context" rows="4" placeholder="e.g. Company OKRs, deadlines, etc."></textarea>
+        <button type="submit">Prioritize Tasks</button>
+    </form>
+    <div class="result-section" id="results"></div>
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const tasks = document.getElementById('tasks').value.split('\n').map(t => t.trim()).filter(Boolean);
+            const context = document.getElementById('context').value.trim();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<em>Loading...</em>';
+            try {
+                const response = await fetch('/prioritize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tasks, context: context || undefined })
+                });
+                if (!response.ok) throw new Error('Server error');
+                const data = await response.json();
+                if (!data.prioritized_tasks || !data.prioritized_tasks.length) {
+                    resultsDiv.innerHTML = '<b>No prioritized tasks returned.</b>';
+                    return;
+                }
+                let table = '<table><thead><tr><th>#</th><th>Priority</th><th>Task</th><th>Effort</th><th>Reasoning</th></tr></thead><tbody>';
+                data.prioritized_tasks.forEach((task, idx) => {
+                    table += `<tr><td>${idx+1}</td><td>${task.priority_level}</td><td>${task.task_description}</td><td>${task.estimated_effort || ''}</td><td>${task.reasoning}</td></tr>`;
+                });
+                table += '</tbody></table>';
+                resultsDiv.innerHTML = '<h2>Prioritized Tasks</h2>' + table;
+            } catch (err) {
+                resultsDiv.innerHTML = '<b>Error:</b> ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html> 
