@@ -10,6 +10,9 @@ from typing import List, Optional
 import uvicorn
 from fastapi.responses import HTMLResponse
 import pathlib
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- FastAPI app setup ---
 app = FastAPI()
@@ -24,8 +27,9 @@ app.add_middleware(
 )
 
 # --- Vertex AI Setup ---
-PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "wackolabs")
-LOCATION = os.getenv("VERTEX_LOCATION", "us-central1")
+PROJECT_ID = os.getenv("VERTEX_PROJECT_ID")
+LOCATION = os.getenv("VERTEX_LOCATION")
+
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
 # --- Tool and Model Setup ---
