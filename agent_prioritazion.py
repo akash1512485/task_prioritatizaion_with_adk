@@ -1,4 +1,3 @@
-
 # Import necessary libraries
 import vertexai
 from vertexai.generative_models import GenerativeModel, Part, Tool, FunctionDeclaration
@@ -48,7 +47,8 @@ prioritize_tasks_func = FunctionDeclaration(
                         "task_description": {"type": "string"},
                         "priority_level": {"type": "string"},
                         "estimated_effort": {"type": "string"},
-                        "reasoning": {"type": "string"}
+                        "reasoning": {"type": "string"},
+                        "deadline": {"type": "string", "format": "date-time"} # "2025-07-12T23:59:00" format
                     },
                     "required": ["task_description", "priority_level", "reasoning"]
                 }
@@ -72,6 +72,7 @@ When prioritizing, you must consider the following factors:
 - **Importance:** What is the impact of completing this task? Does it align with key goals? High-impact tasks are more important.
 - **Effort:** How much time and energy will this task require? Sometimes it's best to knock out quick wins first.
 - **Dependencies:** Does another task depend on this one being completed?
+- **deadline:** If provided, this will help you determine urgency precisely in formats like "2025-07-12T23:59:00".
 
 Your final output **MUST** be structured by calling the `prioritize_tasks` tool. Do not just return a text list.
 Provide clear, concise reasoning for each task's priority.
@@ -93,6 +94,7 @@ class PrioritizedTask(BaseModel):
     priority_level: str
     estimated_effort: Optional[str] = None
     reasoning: str
+    deadline: Optional[str] = None  # ISO 8601 format "2025-07-12T23:59:00"
 
 class PrioritizeResponse(BaseModel):
     prioritized_tasks: List[PrioritizedTask]
@@ -124,5 +126,4 @@ async def serve_frontend():
 
 # --- For local dev: run with uvicorn ---
 if __name__ == "__main__":
-    uvicorn.run("agent_prioritazion:app", host="0.0.0.0", port=8000, reload=True)
-
+    uvicorn.run("agent_prioritazion:app", host="0.0.0.0", port=4500, reload=True)
